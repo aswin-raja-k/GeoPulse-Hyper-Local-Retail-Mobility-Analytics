@@ -1,0 +1,5 @@
+CREATE DATABASE IF NOT EXISTS geopulse;
+
+USE geopulse;
+
+SHOW DATABASES;
