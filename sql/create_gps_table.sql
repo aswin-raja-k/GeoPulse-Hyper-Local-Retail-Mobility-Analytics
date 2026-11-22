@@ -1,24 +1,18 @@
+
+-- GeoPulse GPS Table Creation
+
 USE geopulse;
 
 CREATE TABLE IF NOT EXISTS gps_data (
     GPSRecordID BIGINT AUTO_INCREMENT PRIMARY KEY,
-    DeviceID VARCHAR(100) NOT NULL,
-    Latitude DECIMAL(10, 7),
-    Longitude DECIMAL(10, 7),
-    Timestamp DATETIME
+    DeviceID VARCHAR(100),
+    Latitude DECIMAL(10,7),
+    Longitude DECIMAL(10,7),
+    `Timestamp` DATETIME
 );
 
+-- Verify table creation
+SHOW TABLES;
 
-CREATE TABLE IF NOT EXISTS gps_data (
-    GPSRecordID BIGINT AUTO_INCREMENT PRIMARY KEY,
-    DeviceID VARCHAR(100) NOT NULL,
-    Latitude DECIMAL(10, 7) NOT NULL,
-    Longitude DECIMAL(10, 7) NOT NULL,
-    Timestamp DATETIME NOT NULL,
-
-    CONSTRAINT chk_latitude
-        CHECK (Latitude BETWEEN -90 AND 90),
-
-    CONSTRAINT chk_longitude
-        CHECK (Longitude BETWEEN -180 AND 180)
-);
+-- View table structure
+DESCRIBE gps_data;
