@@ -1,31 +1,29 @@
+
 # GeoPulse – MySQL Database Setup and Validation
 
 ## 1. Project Objective
 
-To design and set up the GeoPulse MySQL database for storing, managing, and analysing simulated GPS mobility data. The initial phase focuses on database creation, GPS table design, and SQL-based data validation.
+To design and set up the GeoPulse MySQL database for storing, managing, and analysing simulated GPS mobility data.
+
+The initial phase focuses on database creation, GPS table design, and SQL-based data validation.
 
 ## 2. Database Details
 
-- **Database Name:** `geopulse`
-- **DBMS:** MySQL Community Server
-- **IDE:** MySQL Workbench
-- **Table Name:** `gps_data`
+- Database Name: geopulse
+- DBMS: MySQL Community Server
+- IDE: MySQL Workbench
+- Table Name: gps_data
+- Project Domain: GPS Mobility Data Analysis
 
 ## 3. Database Creation
 
-Prepared the SQL script to create the `geopulse` database.
+Created the MySQL database named `geopulse` using the database creation SQL script.
 
-```sql
-CREATE DATABASE IF NOT EXISTS geopulse;
-
-USE geopulse;
-
-SHOW DATABASES;
-```
+The database is used to store and analyse simulated GPS mobility records.
 
 ## 4. GPS Table Structure
 
-Designed the `gps_data` table with an auto-increment primary key and appropriate data types for storing GPS information.
+Designed the `gps_data` table with the following columns:
 
 | Column | Data Type | Description |
 |---|---|---|
@@ -35,100 +33,104 @@ Designed the `gps_data` table with an auto-increment primary key and appropriate
 | Longitude | DECIMAL(10,7) | Geographic longitude |
 | Timestamp | DATETIME | Date and time of GPS recording |
 
-### Table Creation SQL
+### Table Design Considerations
 
-```sql
-USE geopulse;
+- GPSRecordID provides a unique identifier for every GPS record.
+- DeviceID identifies the device generating GPS data.
+- DECIMAL(10,7) provides precision for latitude and longitude values.
+- DATETIME stores the GPS recording timestamp.
+- GPS fields are initially nullable to support missing-value validation.
+- GPSRecordID is defined as the primary key with AUTO_INCREMENT.
 
-CREATE TABLE IF NOT EXISTS gps_data (
-    GPSRecordID BIGINT AUTO_INCREMENT PRIMARY KEY,
-    DeviceID VARCHAR(100) NOT NULL,
-    Latitude DECIMAL(10,7) NOT NULL,
-    Longitude DECIMAL(10,7) NOT NULL,
-    Timestamp DATETIME NOT NULL,
+## 5. SQL Data Validation
 
-    CONSTRAINT chk_latitude
-        CHECK (Latitude BETWEEN -90 AND 90),
+Prepared SQL queries to examine the quality, consistency, and distribution of GPS records.
 
-    CONSTRAINT chk_longitude
-        CHECK (Longitude BETWEEN -180 AND 180)
-);
-```
+The following validation checks are included:
 
-**Table Design Considerations:**
-- `GPSRecordID` provides a unique identifier for every GPS record.
-- `DeviceID` identifies the device generating the GPS data.
-- `DECIMAL(10,7)` provides precision for latitude and longitude values.
-- `DATETIME` stores the GPS recording timestamp.
-- `NOT NULL` prevents missing values in mandatory columns.
-- `CHECK` constraints restrict coordinates to valid geographical ranges (supported and enforced in MySQL 8.0.16 and later).
+1. View GPS records.
+2. Count total GPS records.
+3. Identify missing values.
+4. Check latitude and longitude ranges.
+5. Identify duplicate GPS records.
+6. Count unique DeviceIDs.
+7. Identify records with zero coordinates.
+8. Detect future timestamps.
+9. Calculate device-wise GPS record counts.
+10. Identify devices with multiple GPS records.
+11. Calculate geographical coverage using minimum and maximum coordinates.
 
-## 5. SQL Data Validation Queries
+### 5.1 Data Quality Validation Criteria
 
-Prepared SQL validation queries to examine the quality, consistency, and distribution of GPS records.
+The GPS dataset will be evaluated using the following data-quality criteria:
 
-The following checks are included:
+| Validation Area | Expected Check |
+|---|---|
+| Record Completeness | Identify NULL values in important GPS columns. |
+| Coordinate Validity | Latitude must be between -90 and 90, and longitude between -180 and 180. |
+| Record Uniqueness | Identify duplicate GPS records. |
+| Device Identification | Verify the number of unique GPS devices. |
+| Timestamp Consistency | Identify future-dated GPS records. |
+| Coordinate Accuracy | Identify records containing zero coordinates. |
+| Data Distribution | Examine device-wise record counts and geographical coverage. |
 
-1. **View GPS Records:** Retrieve GPS records from the table.
-2. **Total Record Count:** Count the total number of GPS records.
-3. **Missing Values:** Identify records containing NULL values.
-4. **Coordinate Validation:** Check latitude and longitude ranges.
-5. **Duplicate Detection:** Identify duplicate GPS records based on DeviceID, Latitude, Longitude, and Timestamp.
-6. **Unique Device Count:** Calculate the number of distinct DeviceIDs.
-7. **Zero Coordinates:** Identify records with both latitude and longitude equal to zero.
-8. **Future Timestamps:** Detect GPS records with timestamps later than the current date and time.
-9. **Device-wise Record Count:** Calculate GPS records generated by each device.
-10. **Multiple GPS Records:** Identify devices having more than one GPS record.
-11. **Geographical Coverage:** Calculate minimum and maximum latitude and longitude values.
+These checks will help identify incomplete, inconsistent, duplicate, and potentially invalid GPS records before performing further mobility data analysis.
+
+Actual validation outcomes will be documented after importing the simulated GPS dataset into MySQL.
+
 
 ## 6. Project Files
 
 | File Name | Purpose |
 |---|---|
-| `createdatabase.sql` | Database creation script |
-| `create gps table.sql` | GPS table creation script |
-| `validation quries.sql` | SQL data validation queries |
-| `GeoPulse_Database_Documentation.md` | Database setup and technical documentation |
+| create_database.sql | Database creation script |
+| create_gps_table.sql | GPS table creation script |
+| validation_queries.sql | SQL data validation queries |
+| database_setup_report.md | Database setup and technical documentation |
+| README.md | Project overview and repository guide |
+| gps_data.csv | Initial simulated GPS dataset |
 
 ## 7. Current Progress
 
 ### Completed
 
 - [x] Prepared database creation SQL script.
-- [x] Designed the GPS table structure.
-- [x] Defined the primary key and appropriate data types.
-- [x] Added mandatory field constraints.
-- [x] Added latitude and longitude range constraints.
+- [x] Designed GPS table structure.
+- [x] Defined primary key and appropriate data types.
 - [x] Prepared SQL data validation queries.
-- [x] Created project documentation in Markdown format.
-- [x] Organized SQL scripts and documentation for GitHub submission.
+- [x] Prepared database documentation.
+- [x] Organized project folder structure.
 
 ### Pending
 
-- [ ] Confirm the final GPS table structure with Aswin.
+- [ ] Verify MySQL Community Server and Workbench installation.
+- [ ] Confirm final GPS table structure with Aswin.
+- [ ] Create and verify the GeoPulse database.
+- [ ] Create and verify the GPS table.
 - [ ] Receive the initial simulated GPS CSV dataset from Prasuna.
 - [ ] Import the CSV dataset into MySQL.
 - [ ] Verify the imported record count.
 - [ ] Execute validation queries on the imported dataset.
-- [ ] Document the final validation results.
+- [ ] Document actual validation results.
+- [ ] Commit and push deliverables to the assigned GitHub branch.
 
 ## 8. Dependencies and Coordination
 
-- **Aswin:** Confirmation of the final GPS table structure.
-- **Prasuna:** Generation and sharing of the initial simulated GPS CSV dataset.
+- Aswin: Confirmation of the final GPS table structure.
+- Prasuna: Generation and sharing of the initial simulated GPS CSV dataset.
 
-Dataset import and validation depend on receiving the initial CSV file.
+Dataset import and final data validation depend on receiving the CSV file.
 
 ## 9. GitHub Details
 
-- **Assigned Branch:** `srivaishnavi-sql-analytics`
-- **Repository:** GeoPulse project repository.
-- **Deliverables:** Database creation SQL, GPS table creation SQL, validation queries, and Markdown documentation.
+- Assigned Branch: srivaishnavi-sql-analytics
+- Repository: GeoPulse project repository.
+- Deliverables: SQL scripts, database documentation, and README.
 
-All project changes are to be committed and pushed to the assigned branch. No direct commits will be made to the `main` branch.
+All project changes will be committed and pushed to the assigned branch. No direct commits will be made to the main branch.
 
 ## 10. Conclusion
 
-The initial GeoPulse database design, GPS table definition, and SQL data validation scripts have been prepared. The documentation covers the database schema, column definitions, constraints, and validation procedures.
+The initial GeoPulse database design, GPS table definition, and SQL data validation queries have been prepared.
 
-The next phase involves receiving the simulated GPS dataset, importing it into MySQL, verifying the imported records, and performing data quality checks.
+The next phase involves confirming the final table structure, creating the database in MySQL, importing the simulated GPS dataset, verifying imported records, and performing data-quality checks.
