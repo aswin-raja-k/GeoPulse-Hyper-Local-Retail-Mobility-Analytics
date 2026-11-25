@@ -123,3 +123,80 @@ SELECT
 FROM gps_data
 GROUP BY DeviceID
 ORDER BY DeviceID;
+
+
+-- 16. Analyse GPS recording intervals for each device
+WITH device_intervals AS (
+    SELECT
+        DeviceID,
+        Timestamp,
+        LAG(Timestamp) OVER (
+            PARTITION BY DeviceID
+            ORDER BY Timestamp
+        ) AS previous_timestamp
+    FROM gps_data
+)
+SELECT
+    DeviceID,
+    previous_timestamp,
+    Timestamp AS current_timestamp,
+    TIMESTAMPDIFF(
+        MINUTE,
+        previous_timestamp,
+        Timestamp
+    ) AS interval_minutes
+FROM device_intervals
+WHERE previous_timestamp IS NOT NULL
+ORDER BY DeviceID, Timestamp;
+
+
+-- 17. Identify long gaps between GPS recordings
+WITH device_intervals AS (
+    SELECT
+        DeviceID,
+        Timestamp,
+        LAG(Timestamp) OVER (
+            PARTITION BY DeviceID
+            ORDER BY Timestamp
+        ) AS previous_timestamp
+    FROM gps_data
+)
+SELECT
+    DeviceID,
+    previous_timestamp,
+    Timestamp AS current_timestamp,
+    TIMESTAMPDIFF(
+        MINUTE,
+        previous_timestamp,
+        Timestamp
+    ) AS gap_minutes
+FROM device_intervals
+WHERE previous_timestamp IS NOT NULL
+  AND TIMESTAMPDIFF(
+        MINUTE,
+        previous_timestamp,
+        Timestamp
+      ) > 30
+ORDER BY gap_minutes DESC;
+
+
+-- 18. Analyse GPS recording activity by hour
+SELECT
+    HOUR(Timestamp) AS recording_hour,
+    COUNT(*) AS total_records,
+    COUNT(DISTINCT DeviceID) AS active_devices
+FROM gps_data
+GROUP BY HOUR(Timestamp)
+ORDER BY recording_hour;
+
+
+-- 19. Generate daily GPS activity summary
+SELECT
+    DATE(Timestamp) AS recording_date,
+    COUNT(*) AS total_records,
+    COUNT(DISTINCT DeviceID) AS active_devices,
+    MIN(Timestamp) AS first_record,
+    MAX(Timestamp) AS last_record
+FROM gps_data
+GROUP BY DATE(Timestamp)
+ORDER BY recording_date;
