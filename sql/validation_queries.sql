@@ -199,4 +199,5 @@ SELECT
     MAX(Timestamp) AS last_record
 FROM gps_data
 GROUP BY DATE(Timestamp)
+
 ORDER BY recording_date;
