@@ -1,25 +1,31 @@
-
-# GeoPulse – MySQL Database Setup and Validation
+# GeoPulse – MySQL Database Setup, Validation and GPS Mobility Analysis
 
 ## 1. Project Objective
 
-To design and set up the GeoPulse MySQL database for storing, managing, and analysing simulated GPS mobility data.
+To design and develop the GeoPulse MySQL database for storing, managing, validating, and analysing simulated GPS mobility data.
 
-The initial phase focuses on database creation, GPS table design, and SQL-based data validation.
+The database development focuses on GPS table design, SQL-based data validation, device activity analysis, geographical distance calculations, and mobility data analysis.
 
 ## 2. Database Details
 
-- Database Name: geopulse
-- DBMS: MySQL Community Server
-- IDE: MySQL Workbench
-- Table Name: gps_data
-- Project Domain: GPS Mobility Data Analysis
+- **Database Name:** geopulse
+- **DBMS:** MySQL Community Server
+- **IDE:** MySQL Workbench
+- **Main Table:** gps_data
+- **Project Domain:** GPS Mobility Data Analysis
+- **Programming Language:** SQL
 
 ## 3. Database Creation
 
 Created the MySQL database named `geopulse` using the database creation SQL script.
 
-The database is used to store and analyse simulated GPS mobility records.
+```sql
+CREATE DATABASE IF NOT EXISTS geopulse;
+
+USE geopulse;
+```
+
+The database provides a structured environment for storing and analysing simulated GPS mobility records.
 
 ## 4. GPS Table Structure
 
@@ -33,18 +39,18 @@ Designed the `gps_data` table with the following columns:
 | Longitude | DECIMAL(10,7) | Geographic longitude |
 | Timestamp | DATETIME | Date and time of GPS recording |
 
-### Table Design Considerations
+### 4.1 Table Design Considerations
 
-- GPSRecordID provides a unique identifier for every GPS record.
-- DeviceID identifies the device generating GPS data.
-- DECIMAL(10,7) provides precision for latitude and longitude values.
-- DATETIME stores the GPS recording timestamp.
-- GPS fields are initially nullable to support missing-value validation.
-- GPSRecordID is defined as the primary key with AUTO_INCREMENT.
+- `GPSRecordID` provides a unique identifier for every GPS record.
+- `DeviceID` identifies the device generating GPS data.
+- `DECIMAL(10,7)` provides precision for latitude and longitude values.
+- `DATETIME` stores the GPS recording timestamp.
+- `GPSRecordID` is defined as the primary key with `AUTO_INCREMENT`.
+- Appropriate constraints are used to maintain data integrity and coordinate validity.
 
 ## 5. SQL Data Validation
 
-Prepared SQL queries to examine the quality, consistency, and distribution of GPS records.
+Developed SQL queries to examine the quality, consistency, and distribution of GPS records.
 
 The following validation checks are included:
 
@@ -62,75 +68,113 @@ The following validation checks are included:
 
 ### 5.1 Data Quality Validation Criteria
 
-The GPS dataset will be evaluated using the following data-quality criteria:
-
 | Validation Area | Expected Check |
 |---|---|
-| Record Completeness | Identify NULL values in important GPS columns. |
-| Coordinate Validity | Latitude must be between -90 and 90, and longitude between -180 and 180. |
-| Record Uniqueness | Identify duplicate GPS records. |
-| Device Identification | Verify the number of unique GPS devices. |
-| Timestamp Consistency | Identify future-dated GPS records. |
-| Coordinate Accuracy | Identify records containing zero coordinates. |
-| Data Distribution | Examine device-wise record counts and geographical coverage. |
+| Record Completeness | Identify NULL values in important GPS columns |
+| Coordinate Validity | Latitude between -90 and 90; longitude between -180 and 180 |
+| Record Uniqueness | Identify duplicate GPS records |
+| Device Identification | Count unique GPS devices |
+| Timestamp Consistency | Identify future-dated GPS records |
+| Coordinate Accuracy | Identify records containing zero coordinates |
+| Data Distribution | Examine device-wise record counts and geographical coverage |
 
-These checks will help identify incomplete, inconsistent, duplicate, and potentially invalid GPS records before performing further mobility data analysis.
+These checks help identify incomplete, inconsistent, duplicate, and potentially invalid GPS records before further mobility analysis.
 
-Actual validation outcomes will be documented after importing the simulated GPS dataset into MySQL.
+## 6. GPS Mobility and Movement Analysis
 
+Developed an additional SQL module named `device_movement_analysis.sql` to analyse the geographical movement patterns of GPS devices.
 
-## 6. Project Files
+### 6.1 Previous Location Identification
+
+- Used the SQL `LAG()` window function to retrieve the previous GPS coordinates of each device.
+- Ordered GPS records by timestamp to examine consecutive location updates.
+- Compared previous and current GPS positions.
+
+### 6.2 Distance Calculation Using Haversine Formula
+
+- Implemented the Haversine formula to calculate the approximate geographical distance between two consecutive GPS coordinates.
+- Calculated distances in kilometres.
+- Used Earth's approximate mean radius of 6,371 kilometres in the calculation.
+
+### 6.3 Estimated Speed Calculation
+
+- Calculated the time difference between consecutive GPS records.
+- Estimated movement speed using geographical distance and elapsed time.
+- Expressed estimated speed in kilometres per hour.
+- Handled zero or negative time intervals to avoid invalid speed calculations.
+
+### 6.4 Device-wise Distance Analysis
+
+- Calculated estimated total movement distance for individual devices.
+- Aggregated consecutive GPS movement distances.
+- Arranged devices according to their estimated total movement distance.
+
+These operations extend the database module from basic GPS data validation to geographical movement and mobility analysis.
+
+*Note: Calculated distances and speeds are estimates based on consecutive GPS observations, not actual road distances or verified physical speeds.*
+
+## 7. Temporal GPS Activity Analysis
+
+Prepared additional SQL queries to examine the time-based behaviour of GPS devices.
+
+The analysis includes:
+
+1. Identifying the first and last GPS recording timestamps for each device.
+2. Calculating time intervals between consecutive GPS records.
+3. Identifying GPS recording gaps exceeding 30 minutes.
+4. Analysing GPS recording frequency by hour.
+5. Generating daily GPS activity summaries.
+6. Calculating the number of active devices and GPS records for each day.
+
+These queries help understand GPS recording patterns and device activity over time.
+
+## 8. Project Files
 
 | File Name | Purpose |
 |---|---|
-| create_database.sql | Database creation script |
-| create_gps_table.sql | GPS table creation script |
-| validation_queries.sql | SQL data validation queries |
-| database_setup_report.md | Database setup and technical documentation |
-| README.md | Project overview and repository guide |
-| gps_data.csv | Initial simulated GPS dataset |
+| `sql/create_database.sql` | Database creation script |
+| `sql/create_gps_table.sql` | GPS table creation script |
+| `sql/validation_queries.sql` | SQL data validation and temporal analysis queries |
+| `sql/device_movement_analysis.sql` | GPS distance and movement analysis |
+| `documentation/database_setup_report.md` | Database setup and technical documentation |
+| `README.md` | Project overview and repository guide |
+| `gps_data.csv` | Simulated GPS dataset |
 
-## 7. Current Progress
+## 9. Current Progress
 
-### Completed
+### Completed Development Activities
 
 - [x] Prepared database creation SQL script.
-- [x] Designed GPS table structure.
-- [x] Defined primary key and appropriate data types.
+- [x] Designed the GPS table structure.
+- [x] Defined the primary key and appropriate data types.
 - [x] Prepared SQL data validation queries.
-- [x] Prepared database documentation.
-- [x] Organized project folder structure.
+- [x] Added coordinate validation criteria.
+- [x] Developed device-wise GPS activity queries.
+- [x] Added daily GPS recording analysis.
+- [x] Prepared temporal recording interval analysis.
+- [x] Developed GPS movement distance calculations using the Haversine formula.
+- [x] Added estimated device speed calculations.
+- [x] Prepared device-wise total distance analysis.
+- [x] Updated database technical documentation.
+- [x] Organized project files and maintained GitHub version control.
 
-### Pending
+## 10. Dependencies and Coordination
 
-- [ ] Verify MySQL Community Server and Workbench installation.
-- [ ] Confirm final GPS table structure with Aswin.
-- [ ] Create and verify the GeoPulse database.
-- [ ] Create and verify the GPS table.
-- [ ] Receive the initial simulated GPS CSV dataset from Prasuna.
-- [ ] Import the CSV dataset into MySQL.
-- [ ] Verify the imported record count.
-- [ ] Execute validation queries on the imported dataset.
-- [ ] Document actual validation results.
-- [ ] Commit and push deliverables to the assigned GitHub branch.
+- **Aswin:** Coordination regarding the final GPS table structure.
+- **Prasuna:** Simulated GPS CSV dataset generation.
 
-## 8. Dependencies and Coordination
+## 11. GitHub Details
 
-- Aswin: Confirmation of the final GPS table structure.
-- Prasuna: Generation and sharing of the initial simulated GPS CSV dataset.
+- **Assigned Branch:** `srivaishnavi-sql-analytics`
+- **Repository:** GeoPulse – Hyper-Local Retail Mobility Analytics
+- **Platform:** GitHub
 
-Dataset import and final data validation depend on receiving the CSV file.
+Project SQL scripts, documentation, and development updates are maintained in the assigned GitHub branch. Changes are committed and pushed regularly without making direct commits to the `main` branch.
 
-## 9. GitHub Details
+## 12. Conclusion
 
-- Assigned Branch: srivaishnavi-sql-analytics
-- Repository: GeoPulse project repository.
-- Deliverables: SQL scripts, database documentation, and README.
+The GeoPulse database development includes MySQL database design, GPS table structure preparation, SQL data validation, temporal activity analysis, and geographical movement calculations.
 
-All project changes will be committed and pushed to the assigned branch. No direct commits will be made to the main branch.
+The implementation extends beyond basic database management by incorporating GPS distance estimation, device-wise movement analysis, estimated speed calculations, and time-based activity analysis.
 
-## 10. Conclusion
-
-The initial GeoPulse database design, GPS table definition, and SQL data validation queries have been prepared.
-
-The next phase involves confirming the final table structure, creating the database in MySQL, importing the simulated GPS dataset, verifying imported records, and performing data-quality checks.
+These SQL modules establish the foundation for analysing simulated GPS mobility patterns and supporting further geographical and mobility analytics within the GeoPulse project.
