@@ -1,0 +1,40 @@
+GeoPulse Madhapur GPS Dataset — Validation Report
+======================================================
+Generated file: GeoPulse_Madhapur_5000.csv
+Input file: Simulated GPS Dataset CSV (1).csv
+Random seed: 20261127
+
+Study-area definition
+Latitude: 17.4302 to 17.4504
+Longitude: 78.364 to 78.3934
+Boundary type: approximate rectangular operational envelope around Madhapur, Hyderabad.
+Note: This is not an official administrative polygon; confirm/replace with an approved GIS boundary if one is supplied.
+
+Dataset summary
+Total records: 5,000
+Unique devices: 50
+Records per device: min=100, max=100
+Latitude range: 17.430200 to 17.450400
+Longitude range: 78.364000 to 78.393400
+Timestamp range: 2026-11-01 06:04:00 to 2026-11-05 12:07:00
+Maximum implied consecutive-point speed: 0.684 m/s
+Median implied consecutive-point speed: 0.033 m/s
+
+Validation checks
+PASS: Exactly 5,000 records
+PASS: Exactly 50 unique devices
+PASS: Exactly four approved columns
+PASS: No missing values in required columns
+PASS: All latitudes inside study envelope
+PASS: All longitudes inside study envelope
+PASS: 100 records per device
+PASS: Timestamps chronological per device
+PASS: No duplicate device-timestamp pairs
+PASS: All consecutive intervals positive
+PASS: All implied speeds <= 15 m/s
+
+Overall result: PASS
+
+Movement model: device-specific correlated random walks with occasional stationary periods,
+bounded local movement, chronological timestamps, and boundary reflection.
+Data status: fully simulated; not collected from real GPS devices.
