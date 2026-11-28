@@ -252,5 +252,169 @@ WHERE latitude NOT BETWEEN -90 AND 90
 
 
 -- ==========================================================
--- END OF SPATIAL FOUNDATION
+-- 17. GPS DATA QUALITY & ANALYSIS READINESS CHECKS
+--
+-- These checks are prepared for the GeoPulse simulated GPS
+-- dataset: 5,000 records, 50 devices, 100 records/device.
+--
+-- NOTE: These queries have not yet been executed because
+-- PostGIS activation is blocked by Windows security policy.
+-- ==========================================================
+
+
+-- ----------------------------------------------------------
+-- 17.1 CHECK MISSING OR INVALID GPS VALUES
+-- ----------------------------------------------------------
+
+SELECT
+    COUNT(*) AS total_records,
+
+    COUNT(*) FILTER (
+        WHERE device_id IS NULL
+    ) AS missing_device_id,
+
+    COUNT(*) FILTER (
+        WHERE latitude IS NULL
+    ) AS missing_latitude,
+
+    COUNT(*) FILTER (
+        WHERE longitude IS NULL
+    ) AS missing_longitude,
+
+    COUNT(*) FILTER (
+        WHERE recorded_at IS NULL
+    ) AS missing_timestamp,
+
+    COUNT(*) FILTER (
+        WHERE latitude NOT BETWEEN -90 AND 90
+           OR longitude NOT BETWEEN -180 AND 180
+    ) AS invalid_coordinates
+
+FROM gps_points;
+
+
+-- ----------------------------------------------------------
+-- 17.2 DETECT SUSPICIOUS ZERO COORDINATES
+-- ----------------------------------------------------------
+
+SELECT *
+FROM gps_points
+WHERE latitude = 0
+   OR longitude = 0;
+
+
+-- ----------------------------------------------------------
+-- 17.3 DETECT DUPLICATE DEVICE-TIMESTAMP RECORDS
+-- ----------------------------------------------------------
+
+SELECT
+    device_id,
+    recorded_at,
+    COUNT(*) AS duplicate_count
+FROM gps_points
+GROUP BY device_id, recorded_at
+HAVING COUNT(*) > 1
+ORDER BY duplicate_count DESC;
+
+
+-- ----------------------------------------------------------
+-- 17.4 DETECT DUPLICATE GPS OBSERVATIONS
+-- ----------------------------------------------------------
+
+SELECT
+    device_id,
+    latitude,
+    longitude,
+    recorded_at,
+    COUNT(*) AS duplicate_count
+FROM gps_points
+GROUP BY
+    device_id,
+    latitude,
+    longitude,
+    recorded_at
+HAVING COUNT(*) > 1
+ORDER BY duplicate_count DESC;
+
+
+-- ----------------------------------------------------------
+-- 17.5 VERIFY EXPECTED RECORDS PER DEVICE
+--
+-- Expected: 100 records per device
+-- ----------------------------------------------------------
+
+SELECT
+    device_id,
+    COUNT(*) AS record_count,
+    CASE
+        WHEN COUNT(*) = 100 THEN 'EXPECTED'
+        ELSE 'CHECK REQUIRED'
+    END AS validation_status
+FROM gps_points
+GROUP BY device_id
+ORDER BY device_id;
+
+
+-- ----------------------------------------------------------
+-- 17.6 DETECT DEVICES WITH UNEXPECTED RECORD COUNTS
+-- ----------------------------------------------------------
+
+SELECT
+    device_id,
+    COUNT(*) AS record_count
+FROM gps_points
+GROUP BY device_id
+HAVING COUNT(*) <> 100
+ORDER BY device_id;
+
+
+-- ----------------------------------------------------------
+-- 17.7 VERIFY EXPECTED DEVICE COUNT
+--
+-- Expected: 50 unique devices
+-- ----------------------------------------------------------
+
+SELECT
+    COUNT(DISTINCT device_id) AS actual_device_count,
+    CASE
+        WHEN COUNT(DISTINCT device_id) = 50
+        THEN 'EXPECTED'
+        ELSE 'CHECK REQUIRED'
+    END AS validation_status
+FROM gps_points;
+
+
+-- ----------------------------------------------------------
+-- 17.8 CONSOLIDATED DATA QUALITY SUMMARY
+-- ----------------------------------------------------------
+
+SELECT
+    COUNT(*) AS total_records,
+
+    COUNT(DISTINCT device_id) AS unique_devices,
+
+    COUNT(*) FILTER (
+        WHERE geom IS NULL
+    ) AS missing_geometry,
+
+    COUNT(*) FILTER (
+        WHERE latitude NOT BETWEEN -90 AND 90
+           OR longitude NOT BETWEEN -180 AND 180
+    ) AS invalid_coordinates,
+
+    COUNT(*) FILTER (
+        WHERE latitude = 0
+           OR longitude = 0
+    ) AS suspicious_zero_coordinates,
+
+    COUNT(*) - COUNT(DISTINCT (
+        device_id,
+        recorded_at
+    )) AS duplicate_device_timestamp_records
+
+FROM gps_points;
+
+
+-- ==========================================================
+-- END OF GPS DATA QUALITY CHECKS
 -- ==========================================================
